@@ -19,18 +19,20 @@
  */
 package org.sonar.runner.api;
 
+import org.sonar.runner.impl.Logs;
+
 import org.sonar.runner.impl.InternalProperties;
 
 import javax.annotation.Nullable;
 
 import java.io.File;
+import java.io.PrintStream;
 import java.util.Properties;
 
 /**
  * @since 2.2
  */
 public abstract class Runner<T extends Runner> {
-
   private final Properties globalProperties = new Properties();
 
   protected Runner() {
@@ -40,6 +42,24 @@ public abstract class Runner<T extends Runner> {
     Properties clone = new Properties();
     clone.putAll(globalProperties);
     return clone;
+  }
+  
+  /**
+   * Set stdout log stream. By default it is {@link System.out}.
+   * If null, stdout logging will be suppressed.
+   */
+  public T setOutLogStream(PrintStream stdOut) {
+    Logs.setOutStream(stdOut);
+    return (T) this;
+  }
+  
+  /**
+   * Set stderr log stream. By default it is {@link System.err}.
+   * If null, stderr logging will be suppressed.
+   */
+  public T setErrLogStream(PrintStream stdErr) {
+    Logs.setErrStream(stdErr);
+    return (T) this;
   }
 
   /**

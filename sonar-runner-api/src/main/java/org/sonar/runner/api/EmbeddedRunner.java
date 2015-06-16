@@ -19,13 +19,15 @@
  */
 package org.sonar.runner.api;
 
+import org.sonar.runner.impl.Logs;
+
 import org.sonar.runner.batch.IsolatedLauncher;
 import org.sonar.runner.impl.IsolatedLauncherFactory;
 
+import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 import java.util.Properties;
 
 /**
@@ -36,7 +38,6 @@ import java.util.Properties;
  * @since 2.2
  */
 public class EmbeddedRunner extends Runner<EmbeddedRunner> {
-
   private final IsolatedLauncherFactory launcherFactory;
   private IsolatedLauncher launcher;
   private final List<Object> extensions = new ArrayList<Object>();
@@ -50,6 +51,12 @@ public class EmbeddedRunner extends Runner<EmbeddedRunner> {
    * Create a new instance.
    */
   public static EmbeddedRunner create() {
+    return new EmbeddedRunner(new IsolatedLauncherFactory());
+  }
+  
+  public static EmbeddedRunner create(PrintStream stdOut, PrintStream stdErr) {
+    Logs.setOutStream(stdOut);
+    Logs.setErrStream(stdErr);
     return new EmbeddedRunner(new IsolatedLauncherFactory());
   }
 
@@ -100,11 +107,12 @@ public class EmbeddedRunner extends Runner<EmbeddedRunner> {
   List<Object> extensions() {
     return extensions;
   }
+  
 
   @Override
   protected void doStart() {
     launcher = launcherFactory.createLauncher(globalProperties());
-    launcher.start(globalProperties(), extensions);
+    launcher.start(globalProperties(), extensions, Logs.getOutStream(), Logs.getErrStream());
   }
 
   @Override

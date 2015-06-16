@@ -38,7 +38,7 @@ public class IsolatedLauncherTest {
     props.setProperty("sonar.projectName", "Sample");
     props.setProperty("sonar.projectVersion", "1.0");
     props.setProperty("sonar.sources", "src");
-    Batch batch = launcher.createBatch(props, Collections.emptyList());
+    Batch batch = launcher.createBatch(props, Collections.emptyList(), null, null);
 
     assertThat(batch).isNotNull();
   }

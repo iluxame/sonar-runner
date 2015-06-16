@@ -19,11 +19,16 @@
  */
 package org.sonar.runner.batch;
 
+import java.io.PrintStream;
 import java.util.List;
 import java.util.Properties;
 
 public interface IsolatedLauncher {
   void start(Properties properties, List<Object> extensions);
+
+  void start(Properties properties, List<Object> extensions, PrintStream outStream, PrintStream errStream);
+
   void stop();
+
   void execute(Properties properties);
 }

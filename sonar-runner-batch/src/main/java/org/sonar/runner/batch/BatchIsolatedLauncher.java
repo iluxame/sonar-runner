@@ -19,6 +19,8 @@
  */
 package org.sonar.runner.batch;
 
+import org.picocontainer.annotations.Nullable;
+
 import ch.qos.logback.classic.LoggerContext;
 import ch.qos.logback.classic.joran.JoranConfigurator;
 import ch.qos.logback.core.joran.spi.JoranException;
@@ -26,6 +28,7 @@ import com.google.common.annotations.VisibleForTesting;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.PrintStream;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -43,13 +46,19 @@ public class BatchIsolatedLauncher implements IsolatedLauncher {
 
   private static final String WARN = "WARN";
   private static final String DEBUG = "DEBUG";
+  private static final String INFO = "INFO";
   private static final String FALSE = "false";
 
   private Batch batch = null;
 
   @Override
   public void start(Properties globalProperties, List<Object> extensions) {
-    batch = createBatch(globalProperties, extensions);
+    start(globalProperties, extensions, null, null);
+  }
+
+  @Override
+  public void start(Properties globalProperties, List<Object> extensions, @Nullable PrintStream outStream, @Nullable PrintStream errStream) {
+    batch = createBatch(globalProperties, extensions, outStream, errStream);
     batch.start();
   }
 
@@ -63,14 +72,19 @@ public class BatchIsolatedLauncher implements IsolatedLauncher {
     batch.executeTask((Map) properties);
   }
 
-  Batch createBatch(Properties properties, List<Object> extensions) {
+  Batch createBatch(Properties properties, List<Object> extensions, @Nullable PrintStream outStream, @Nullable PrintStream errStream) {
     initLogging(properties);
     EnvironmentInformation env = new EnvironmentInformation(properties.getProperty("sonarRunner.app"), properties.getProperty("sonarRunner.appVersion"));
-    return Batch.builder()
+    Batch.Builder builder = Batch.builder()
       .setEnvironment(env)
       .addComponents(extensions)
-      .setBootstrapProperties((Map) properties)
-      .build();
+      .setBootstrapProperties((Map) properties);
+
+    if (outStream != null || errStream != null) {
+      builder.setLogStreams(outStream, errStream);
+    }
+
+    return builder.build();
   }
 
   private void initLogging(Properties props) {
@@ -79,7 +93,7 @@ public class BatchIsolatedLauncher implements IsolatedLauncher {
     jc.setContext(context);
     context.reset();
     try (InputStream input = Batch.class.getResourceAsStream("/org/sonar/batch/logback.xml")) {
-      System.setProperty("ROOT_LOGGER_LEVEL", isDebug(props) ? DEBUG : "INFO");
+      System.setProperty("ROOT_LOGGER_LEVEL", isDebug(props) ? DEBUG : INFO);
       context.putProperty("SQL_LOGGER_LEVEL", getSqlLevel(props));
       context.putProperty("SQL_RESULTS_LOGGER_LEVEL", getSqlResultsLevel(props));
       jc.doConfigure(input);

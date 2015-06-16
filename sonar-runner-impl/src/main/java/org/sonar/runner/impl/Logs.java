@@ -19,11 +19,41 @@
  */
 package org.sonar.runner.impl;
 
+import org.apache.commons.io.output.NullOutputStream;
+
+import java.io.PrintStream;
+
 public class Logs {
+  private static PrintStream out = System.out;
+  private static PrintStream err = System.err;
+  private static boolean debugEnabled = false;
+
   private Logs() {
   }
 
-  private static boolean debugEnabled = false;
+  public static void setOutStream(PrintStream out) {
+    if(out == null) {
+      Logs.out = new PrintStream(new NullOutputStream());
+    } else {
+      Logs.out = out;
+    }
+  }
+
+  public static void setErrStream(PrintStream err) {
+    if(err == null) {
+      Logs.err = new PrintStream(new NullOutputStream());
+    } else {
+      Logs.err = err;
+    }
+  }
+
+  public static PrintStream getOutStream() {
+    return Logs.out;
+  }
+
+  public static PrintStream getErrStream() {
+    return Logs.err;
+  }
 
   public static void setDebugEnabled(boolean debugEnabled) {
     Logs.debugEnabled = debugEnabled;
@@ -35,26 +65,26 @@ public class Logs {
 
   public static void debug(String message) {
     if (isDebugEnabled()) {
-      System.out.println("DEBUG: " + message);
+      out.println("DEBUG: " + message);
     }
   }
 
   public static void info(String message) {
-    System.out.println("INFO: " + message);
+    out.println("INFO: " + message);
   }
 
   public static void warn(String message) {
-    System.out.println("WARN: " + message);
+    out.println("WARN: " + message);
   }
 
   public static void error(String message) {
-    System.err.println("ERROR: " + message);
+    err.println("ERROR: " + message);
   }
 
   public static void error(String message, Throwable t) {
-    System.err.println("ERROR: " + message);
+    err.println("ERROR: " + message);
     if (t != null) {
-      t.printStackTrace(System.err);
+      t.printStackTrace(err);
     }
   }
 }

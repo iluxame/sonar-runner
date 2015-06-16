@@ -19,6 +19,8 @@
  */
 package org.sonar.runner.api;
 
+import org.sonar.runner.impl.Logs;
+
 import org.sonar.runner.impl.BatchLauncherMain;
 import org.sonar.runner.impl.JarExtractor;
 
@@ -121,7 +123,9 @@ public class ForkedRunner extends Runner<ForkedRunner> {
   }
 
   /**
-   * Subscribe to the standard output. By default output is {@link System.out}
+   * @deprecated Since 2.5. Use {@link setOutLogStream} instead.
+   * Subscribe to the standard output from the forked process. By default it is the stream set with {@link setOutLogStream} or 
+   * {@link System.out}.
    */
   public ForkedRunner setStdOut(@Nullable StreamConsumer stream) {
     this.stdOut = stream;
@@ -129,7 +133,9 @@ public class ForkedRunner extends Runner<ForkedRunner> {
   }
 
   /**
-   * Subscribe to the error output. By default output is {@link System.err}
+   * @deprecated Since 2.5. Use {@link setErrLogStream} instead.
+   * Subscribe to the error output from the forked process. By default it is the stream set with {@link setErrLogStream} or 
+   * {@link System.err}.
    */
   public ForkedRunner setStdErr(@Nullable StreamConsumer stream) {
     this.stdErr = stream;
@@ -138,12 +144,12 @@ public class ForkedRunner extends Runner<ForkedRunner> {
 
   @Override
   protected void doExecute(Properties props) {
-    //merge both global and analysis-specific properties because it will be used both to start and to execute.
+    // merge both global and analysis-specific properties because it will be used both to start and to execute.
     Properties p = new Properties();
-    
+
     p.putAll(globalProperties());
     p.putAll(props);
-    
+
     ForkCommand forkCommand = createCommand(p);
     try {
       fork(forkCommand);
@@ -151,15 +157,15 @@ public class ForkedRunner extends Runner<ForkedRunner> {
       deleteTempFiles(forkCommand);
     }
   }
-  
+
   @Override
   protected void doStop() {
-    //nothing to do
+    // nothing to do
   }
-  
+
   @Override
   protected void doStart() {
-  //nothing to do
+    // nothing to do
   }
 
   ForkCommand createCommand(Properties p) {
@@ -196,11 +202,12 @@ public class ForkedRunner extends Runner<ForkedRunner> {
 
   private void fork(ForkCommand forkCommand) {
     if (stdOut == null) {
-      stdOut = new PrintStreamConsumer(System.out);
+      stdOut = new PrintStreamConsumer(Logs.getOutStream());
     }
     if (stdErr == null) {
-      stdErr = new PrintStreamConsumer(System.err);
+      stdErr = new PrintStreamConsumer(Logs.getOutStream());
     }
+
     int status = commandExecutor.execute(forkCommand.command, stdOut, stdErr, ONE_DAY_IN_MILLISECONDS, processMonitor);
     if (status != 0) {
       if (processMonitor != null && processMonitor.stop()) {

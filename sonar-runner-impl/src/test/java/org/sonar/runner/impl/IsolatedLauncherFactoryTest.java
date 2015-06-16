@@ -22,6 +22,7 @@ package org.sonar.runner.impl;
 import org.junit.Before;
 import org.sonar.runner.batch.IsolatedLauncher;
 
+import java.io.PrintStream;
 import java.util.List;
 import java.util.Properties;
 
@@ -101,6 +102,11 @@ public class IsolatedLauncherFactoryTest {
     @Override
     public void execute(Properties properties) {
       FakeIsolatedLauncher.props = properties;
+    }
+
+    @Override
+    public void start(Properties properties, List<Object> extensions, PrintStream outStream, PrintStream errStream) {
+      
     }
   }
 }
