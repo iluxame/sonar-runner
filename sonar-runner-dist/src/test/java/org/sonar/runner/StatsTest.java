@@ -19,6 +19,8 @@
  */
 package org.sonar.runner;
 
+import org.sonar.runner.impl.Logs;
+
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
 import java.io.UnsupportedEncodingException;
@@ -32,7 +34,7 @@ public class StatsTest {
   @Test
   public void shouldPrintStats() throws UnsupportedEncodingException {
     ByteArrayOutputStream output = new ByteArrayOutputStream();
-    System.setOut(new PrintStream(output));
+    Logs.setOutStream(new PrintStream(output));
     new Stats().start().stop();
 
     String out = output.toString("UTF-8");
@@ -40,8 +42,8 @@ public class StatsTest {
     
     assertThat(lines).hasSize(2);
     
-    assertThat(lines[0]).startsWith("Total time: ");
-    assertThat(lines[1]).startsWith("Final Memory: ");
+    assertThat(lines[0]).contains("Total time: ");
+    assertThat(lines[1]).contains("Final Memory: ");
   }
 
   @Test

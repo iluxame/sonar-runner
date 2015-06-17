@@ -205,7 +205,7 @@ public class ForkedRunner extends Runner<ForkedRunner> {
       stdOut = new PrintStreamConsumer(Logs.getOutStream());
     }
     if (stdErr == null) {
-      stdErr = new PrintStreamConsumer(Logs.getOutStream());
+      stdErr = new PrintStreamConsumer(Logs.getErrStream());
     }
 
     int status = commandExecutor.execute(forkCommand.command, stdOut, stdErr, ONE_DAY_IN_MILLISECONDS, processMonitor);
