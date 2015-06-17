@@ -113,7 +113,7 @@ public abstract class Runner<T extends Runner> {
     if (dumpToFile != null) {
       File dumpFile = new File(dumpToFile);
       Utils.writeProperties(dumpFile, copy);
-      System.out.println("Simulation mode. Configuration written to " + dumpFile.getAbsolutePath());
+      Logs.info("Simulation mode. Configuration written to " + dumpFile.getAbsolutePath());
     } else {
       doExecute(copy);
     }

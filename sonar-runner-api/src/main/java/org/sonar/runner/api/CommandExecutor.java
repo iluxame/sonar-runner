@@ -19,6 +19,8 @@
  */
 package org.sonar.runner.api;
 
+import org.sonar.runner.impl.Logs;
+
 import javax.annotation.Nullable;
 
 import java.io.BufferedReader;
@@ -149,8 +151,7 @@ class CommandExecutor {
       try {
         thread.join();
       } catch (InterruptedException e) {
-        System.err.println("InterruptedException while waiting finish of " + thread.toString());
-        e.printStackTrace();
+        Logs.error("InterruptedException while waiting finish of " + thread.toString(), e);
       }
     }
   }
